@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-from .models import Teacher, Student, Group
+from .models import Group, Certificate
 
-admin.site.register(Teacher)
-admin.site.register(Student)
+admin.site.register(Certificate)
 admin.site.register(Group)
