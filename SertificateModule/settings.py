@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Sertificate',
-    'userprofile'
+    'userprofile',
+    'loginsys',
 ]
 
 MIDDLEWARE = [
@@ -59,6 +60,7 @@ TEMPLATES = [
         'DIRS': [
             'C:/Users/Valeria/PycharmProjects/SertificateModule/venv/Scripts/SertificateModule/templates',
             'C:/Users/Valeria/PycharmProjects/SertificateModule/venv/Scripts/SertificateModule/Sertificate/templates',
+            'C:/Users/Valeria/PycharmProjects/SertificateModule/venv/Scripts/SertificateModule/loginsys/templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {

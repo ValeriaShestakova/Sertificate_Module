@@ -12,7 +12,7 @@
     <section class="top-bar-section">
         <ul class="left">
             {% if username %}
-            <li> {{ username }} </li>
+            <li> <a href=""> {{ fullname }}, {{ user_status }} </a></li>
             {% endif %}
         </ul>
         <ul class="right">
@@ -24,8 +24,10 @@
         </ul>
     </section>
 </div>
+<h1><a href="/">CertificateModule</a></h1>
 <div class='row'>
 {% block sertificate %}{% endblock %}
+{% block login %}{% endblock %}
 </div>
 </body>
 </html>
