@@ -1,6 +1,28 @@
 {% extends 'main.html' %}
-<!--{% load staticfiles %}-->
 
-{%block sertificate %}
-<h1>Hi</h1>
+{%block certificate_student %}
+<div class="row">
+    <div class="large-6 medium columns">
+        <div class="panel">
+            <h4>Текущие курсы</h4><hr>
+            {% if program %}
+            <h5>{{ program.program_name }}</h5>
+            {% else %}
+            <h5>{{ error_program }}</h5>
+            {% endif %}
+        </div>
+    </div>
+    <div class="large-6 medium columns">
+        <div class="panel">
+            <h4>Полученные сертификаты</h4> <hr>
+            {% if certificate %}
+                {% for c in certificate %}
+                <h5>{{ c.program.program_name }}</h5>
+                {% endfor %}
+            {% else %}
+            <h5>{{ error_certificate }}</h5>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -21,8 +21,12 @@ class UserProfile(models.Model):
             return 'преподаватель'
         elif self.status == 'student':
             return 'обучающийся'
-        else:
+        elif self.status == 'secretary':
             return 'секретарь'
+        elif self.status == 'admin':
+            return 'администратор'
+        else:
+            return ' '
 
     class Meta:
         verbose_name = 'Профиль'

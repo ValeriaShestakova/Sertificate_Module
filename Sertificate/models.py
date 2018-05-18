@@ -6,6 +6,9 @@ class Program(models.Model):
     program_name = models.CharField(verbose_name='Название программы', max_length=200)
     num_hours = models.IntegerField(verbose_name='Количество часов', default=1)
 
+    def __str__(self):
+        return self.program_name
+
     class Meta:
         verbose_name = 'программа'
         verbose_name_plural = 'программы'
@@ -16,6 +19,9 @@ class Task(models.Model):
     task_num = models.IntegerField(verbose_name='Номер задания', default=1)
     task_description = models.TextField(verbose_name='Описание задания')
     program = models.ForeignKey(Program, models.SET_NULL, default=1, null=True)
+
+    def __str__(self):
+        return self.task_title
 
     class Meta:
         verbose_name = 'задание'
