@@ -16,9 +16,11 @@
         <div class="panel">
             <h4>Полученные сертификаты</h4> <hr>
             {% if certificate %}
+            <ul>
                 {% for c in certificate %}
-                <h5>{{ c.program.program_name }}</h5>
+                <li><h5><a href="#">{{ c.program.program_name }}</a></h5></li>
                 {% endfor %}
+            </ul>
             {% else %}
             <h5>{{ error_certificate }}</h5>
             {% endif %}

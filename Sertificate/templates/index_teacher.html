@@ -1,0 +1,22 @@
+{% extends 'main.html' %}
+
+{%block index_teacher %}
+<div class="row">
+    <div class="large-12 columns">
+        <div class="panel">
+            <h4>Запросы</h4><hr>
+            <div class="request-container">
+                {% if req %}
+                <ul>
+                    {% for r in req %}
+                        <li><h5>{{ r }}</h5></li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <h5>{{ error_request }}</h5>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

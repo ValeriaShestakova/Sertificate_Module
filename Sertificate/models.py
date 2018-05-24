@@ -17,8 +17,8 @@ class Program(models.Model):
 class Task(models.Model):
     task_title = models.CharField(verbose_name='Задание', max_length=200)
     task_num = models.IntegerField(verbose_name='Номер задания', default=1)
-    task_description = models.TextField(verbose_name='Описание задания')
-    program = models.ForeignKey(Program, models.SET_NULL, default=1, null=True)
+    # task_description = models.TextField(verbose_name='Описание задания')
+    program = models.ForeignKey(Program, models.SET_NULL, null=True, default=1, verbose_name='Программа обучения')
 
     def __str__(self):
         return self.task_title
@@ -46,7 +46,7 @@ class Group(models.Model):
 class Certificate(models.Model):
     certificate_number = models.CharField(verbose_name='Номер', max_length=200)
     student = models.ForeignKey(User, on_delete=models.CASCADE)
-    program = models.ForeignKey(Program, models.SET_NULL, default=1, null=True)
+    program = models.ForeignKey(Program, models.SET_NULL, default=1, null=True, verbose_name='Программа обучения')
     status = models.CharField(verbose_name='Статус сертификата', max_length=200)  # not_issued, required, issued
 
     def __str__(self):

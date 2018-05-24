@@ -28,9 +28,8 @@
 <h1><a href="/">CertificateModule</a></h1><br>
 {% if username %}
     <div class='row'>
-    {% if user_status == 'обучающийся' %}
         {% block certificate_student %}{% endblock %}
-    {% endif %}
+        {% block index_teacher %}{% endblock %}
 {% else %}
     <h3 style="text-align: center">Необходимо войти в систему</h3>
 {% endif %}
