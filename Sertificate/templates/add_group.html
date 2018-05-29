@@ -1,0 +1,17 @@
+{% extends 'main.html' %}
+
+{% block add_group %}
+<div class="row">
+    <div class="large-12 medium columns">
+        <div class="panel">
+            <h4>Добавить группу</h4><hr>
+            {{ error }}
+             <form action="/add_group/" method="post">
+                 {% csrf_token %}
+                 {{ group_form }}
+                 <input class="small radius button mini" type="submit" value="Добавить">
+             </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

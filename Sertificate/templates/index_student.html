@@ -5,8 +5,23 @@
     <div class="large-6 medium columns">
         <div class="panel">
             <h4>Текущие курсы</h4><hr>
-            {% if program %}
-            <h5>{{ program.program_name }}</h5>
+            {% if group %}
+            <h5>Группа {{ group.group_number }}:</h5>
+            <h5>{{ group.program.program_name }}</h5> <hr>
+            <p><b>Дата проведения курсов:</b><br> {{ group.begin_date }} - {{ group.end_date }}<br>
+                <b>Преподаватели:</b><br>
+                {% for t in teachers %}
+                    {{ t.userprofile.fullname }},
+                {% endfor %}
+                <br>
+                <b>Выполненные задания:</b><br>
+                {% for t in stud.userprofile.task.all %}
+                    {{ t.task_num }}. {{ t.task_title }} <br>
+                {% endfor %}
+            </p>
+            {% if cert.status == 'not_required' %}
+                <a href="/index/require_cert/{{ cert.id }}/" class="small radius button mini">Запросить сертификат</a>
+            {% endif %}
             {% else %}
             <h5>{{ error_program }}</h5>
             {% endif %}

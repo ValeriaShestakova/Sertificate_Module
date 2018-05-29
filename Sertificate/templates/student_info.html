@@ -1,0 +1,45 @@
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+
+{% block student_info %}
+<div class="row">
+    <div class="large-12 medium columns">
+        <div class="panel">
+            <h4>Результаты обучения студента</h4><hr>
+             <b>ФИО: </b><h5>{{ student.userprofile.fullname }}</h5><hr>
+            {% if cert.status == 'issued' %}
+                <b>Свидетельство об окончании обучения выдано. Пользователь успешно прошел курс</b>
+            {% endif %}
+            {% if cert.status == 'not_issued' %}
+                <b>В выдаче свидетельства об окончании обучения отказано. Пользователь не прошел курс</b>
+            {% endif %}
+            {% if cert.status == 'required' %}
+                <b>Свидетельство об окончании обучения запрошено. Необходимо подтвердить или отклонить заявку по окончании обучения</b><br>
+                <a href="/groups/{{ student.userprofile.group_for_stud.id }}/issue_cert/{{ cert.id}}/" class="small success radius button mini">Подтвердить</a>
+                <a href="/groups/{{ student.userprofile.group_for_stud.id }}/reject_cert/{{ cert.id }}/" class="small alert radius button mini">Отклонить</a>
+            {% endif %}
+            {% if cert.status == 'not_required' %}
+                <b>Свидетельство об окончании обучения не выдано. Пользователь не окончил обучение</b><br>
+                <a href="/groups/{{ student.userprofile.group_for_stud.id }}/issue_cert/{{ cert.id}}/" class="small success radius button mini">Подтвердить</a>
+                <a href="/groups/{{ student.userprofile.group_for_stud.id }}/reject_cert/{{ cert.id }}/" class="small alert radius button mini">Отклонить</a>
+            {% endif %}
+            <br>
+            <hr>
+            <b>Выполненные задания:</b><br>
+                <div class="request-container info">
+                    {% for t in student.userprofile.task.all %}
+                        {{ t.task_num }}. {{ t.task_title }} <br>
+                    {% endfor %}
+                </div>
+            <hr>
+            <b>Добавить задания к выполненным</b><br>
+             <div class="request-container info">
+                {% for t in tasks %}
+                {{ t.task_num }}. {{ t.task_title }}  <a href="/add_task/{{ student.id }}/{{ t.id }}/" class="small success radius button mini">Добавить</a><br>
+                {% endfor %}
+             </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

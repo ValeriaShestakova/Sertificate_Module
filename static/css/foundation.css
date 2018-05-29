@@ -6584,3 +6584,84 @@ th.hide-for-touch {
     width: 100%;
     overflow-y : scroll;
 }
+
+.request-container.info {
+    padding: 10px;
+    height: 95px;
+    width: 100%;
+    overflow-y : scroll;
+}
+
+.group-container {
+    height: 18rem;
+    width: 100%;
+    overflow-y : scroll;
+}
+
+.middle-header {
+    text-align: center;
+}
+
+.inline-h {
+    display: inline-block;
+    padding-top: 0.2rem;
+}
+
+.inline-h.group {
+    display: inline-block;
+    padding-top: 0.1rem;
+}
+
+.success.button.mini, .left-marg.button.mini {
+    margin-left: 1.8rem;
+}
+
+.alert.button.mini {
+    margin-left: 0.3rem;
+}
+
+
+.button.mini {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.student.issued {
+    color: #43AC6A;
+}
+
+.student.not_issued {
+    color: #cf2a0e;
+}
+
+.student.required {
+    color: grey;
+}
+
+.delete {
+    margin-left: 0.2rem;
+    margin-top: -0.2rem;
+}
+
+.delete-group {
+    displays: inline-block;
+    margin-left: 0.2rem;
+    margin-top: -0.2rem;
+}
+
+.success.mini.add-btn {
+    margin-left: 0;
+    margin-top: 0.4rem;
+}
+
+li .button.mini {
+    margin-bottom: 0.1rem;
+}
+
+li {
+    margin-bottom: 0.5rem;
+}
+
+.button.mini.margin-top {
+    margin-top: 2rem;
+}

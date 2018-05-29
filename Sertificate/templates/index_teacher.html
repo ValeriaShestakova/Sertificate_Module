@@ -3,17 +3,37 @@
 {%block index_teacher %}
 <div class="row">
     <div class="large-12 columns">
+        <a hraf='/search/' class="small radius button mini">Выполнить поиск</a>
         <div class="panel">
-            <h4>Запросы</h4><hr>
+            <h4 class="middle-header">Запросы на выдачу свидетельств</h4><hr>
             <div class="request-container">
-                {% if req %}
+                {% if cert %}
                 <ul>
-                    {% for r in req %}
-                        <li><h5>{{ r }}</h5></li>
+                    {% for c in cert %}
+                        <li><h5 class="inline-h">{{ c.student.userprofile.fullname }}, {{ c.program.program_name }}</h5>
+                            <a href="/index/issue_cert/{{ c.certificate_number }}/" class="small success radius button mini">Подтвердить</a>
+                            <a href="/index/reject_cert/{{ c.certificate_number }}/" class="small alert radius button mini">Отклонить</a>
+                        </li>
                     {% endfor %}
                 </ul>
                 {% else %}
                 <h5>{{ error_request }}</h5>
+                {% endif %}
+            </div>
+        </div>
+        <div class="panel">
+            <h4 class="middle-header">Группы</h4><hr>
+            <div class="request-container">
+                {% if groups %}
+                <ul>
+                    {% for g in groups %}
+                    <li><h5><a href="/groups/{{ g.id }}/">Группа {{ g.group_number }}</a></h5>
+                    <p>{{ g.begin_date }} - {{ g.end_date }}, "{{ g.program.program_name }}"</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <h5>{{ error_groups}}</h5>
                 {% endif %}
             </div>
         </div>
