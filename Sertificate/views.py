@@ -7,6 +7,7 @@ from userprofile.models import UserProfile
 from django.template.context_processors import csrf
 from loginsys.forms import SignUpForm
 from Sertificate.forms import GroupForm
+from django.http import HttpResponse
 import random
 # select_related prefetch_related only
 
@@ -262,10 +263,27 @@ def add_task(request, student_id, task_id):
     return redirect(address)
 
 
-def search(request):
+def backup(request):
     user = auth.get_user(request)
     args = {'username': user.username, 'user_status': user.userprofile.to_rus(), 'fullname': user.userprofile.fullname}
-    address = 'search.html'
-    return render_to_response(address, args)
+    address = '/'
+    # memcon = apsw.Connection(":memory:")
+    # # Copy into memory
+    # connection = "C:/Users/Valeria/PycharmProjects/SertificateModule/venv/Scripts/SertificateModule/db.sqlite3"
+    # with memcon.backup("main", connection, "main") as backup:
+    #     backup.step()  # copy whole database in one go
+    #
+    # # There will be no disk accesses for this query
+    # for row in memcon.cursor().execute("select * from s"):
+    #     pass
+    return redirect(address)
 
+
+def show_pdf(request):
+    with open('static/file.pdf', 'r') as pdf:
+        response = HttpResponse(pdf.read(), content_type='application/pdf')
+        response['Content-Disposition'] = 'inline;filename=file.pdf'
+        return response
+    pdf.closed
+    return response
 

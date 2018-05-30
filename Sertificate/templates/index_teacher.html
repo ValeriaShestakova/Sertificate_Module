@@ -3,7 +3,7 @@
 {%block index_teacher %}
 <div class="row">
     <div class="large-12 columns">
-        <a hraf='/search/' class="small radius button mini">Выполнить поиск</a>
+        <a href='search/exec_search/' class="small radius button mini">Выполнить поиск</a>
         <div class="panel">
             <h4 class="middle-header">Запросы на выдачу свидетельств</h4><hr>
             <div class="request-container">
@@ -11,8 +11,8 @@
                 <ul>
                     {% for c in cert %}
                         <li><h5 class="inline-h">{{ c.student.userprofile.fullname }}, {{ c.program.program_name }}</h5>
-                            <a href="/index/issue_cert/{{ c.certificate_number }}/" class="small success radius button mini">Подтвердить</a>
-                            <a href="/index/reject_cert/{{ c.certificate_number }}/" class="small alert radius button mini">Отклонить</a>
+                            <a href="/index/issue_cert/{{ c.id }}/" class="small success radius button mini">Подтвердить</a>
+                            <a href="/index/reject_cert/{{ c.id }}/" class="small alert radius button mini">Отклонить</a>
                         </li>
                     {% endfor %}
                 </ul>

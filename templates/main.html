@@ -15,6 +15,13 @@
             <li> <a href=""> {{ fullname }}, {{ user_status }} </a></li>
             {% endif %}
         </ul>
+        <ul class="left">
+            {% if username %}
+                {% if user_status == 'секретарь' %}
+                    <li> <a href="/backup/"> Резервное копирование данных </a></li>
+                {% endif %}
+            {% endif %}
+        </ul>
         <ul class="right">
             {% if username %}
                 <li><a href="/auth/logout/">Выйти ({{ username }})</a></li>
@@ -35,6 +42,7 @@
         {% block add_student %}{% endblock %}
         {% block add_group %}{% endblock %}
         {% block student_info %}{% endblock %}
+        {% block search %}{% endblock %}
 {% else %}
     <h3 style="text-align: center">Необходимо войти в систему</h3>
 {% endif %}

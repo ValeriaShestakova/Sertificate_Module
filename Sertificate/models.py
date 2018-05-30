@@ -32,7 +32,7 @@ class Group(models.Model):
     group_number = models.CharField(verbose_name='Номер группы', max_length=100)
     begin_date = models.DateField(verbose_name='Дата начала курса')
     end_date = models.DateField(verbose_name='Дата окончания курса')
-    program = models.ForeignKey(Program, models.SET_NULL, default=1, null=True)
+    program = models.ForeignKey(Program, models.SET_NULL, default=1, null=True, verbose_name='Программа обучения')
     teacher = models.ManyToManyField(User, verbose_name='Преподаватель')
 
     def __str__(self):
@@ -47,7 +47,8 @@ class Certificate(models.Model):
     certificate_number = models.CharField(verbose_name='Номер', max_length=200)
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     program = models.ForeignKey(Program, models.SET_NULL, default=1, null=True, verbose_name='Программа обучения')
-    status = models.CharField(verbose_name='Статус сертификата', max_length=200)  # not_issued, required, issued, not_required
+    status = models.CharField(verbose_name='Статус сертификата', max_length=200)  #not_issued, required, issued, not_required
+    change = models.BooleanField(verbose_name='Возможны ли изменения', default=True) #true - сертификат не выдавался, изменения возможны
 
     def __str__(self):
         return self.certificate_number

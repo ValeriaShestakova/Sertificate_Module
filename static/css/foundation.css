@@ -6593,7 +6593,7 @@ th.hide-for-touch {
 }
 
 .group-container {
-    height: 18rem;
+    height: 16rem;
     width: 100%;
     overflow-y : scroll;
 }
@@ -6664,4 +6664,14 @@ li {
 
 .button.mini.margin-top {
     margin-top: 2rem;
+}
+
+.search_form ul {
+    list-style-type: none;
+    margin-top: 1rem;
+}
+
+.search_form ul label {
+    padding: 0;
+
 }

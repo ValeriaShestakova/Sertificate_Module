@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^add_task/(?P<student_id>\d+)/(?P<task_id>\d+)/$', views.add_task),
     url(r'^groups/(?P<group_id>\d+)/$', views.groups),
     url(r'^add_group/$', views.add_group),
-    url(r'^search/$', views.search),
+    url(r'^show_pdf/$', views.show_pdf),
+    url(r'^backup/$', views.backup),
     url(r'^$', views.index),
 ]

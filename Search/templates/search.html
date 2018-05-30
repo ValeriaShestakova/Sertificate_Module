@@ -1,0 +1,17 @@
+{% extends 'main.html' %}
+
+{%block search %}
+
+<div class="row">
+    <div class="large-12 columns">
+        <div class="panel">
+            <h4 class="middle-header">Поиск</h4><hr>
+             <form action="/exec_search/" method="post" class="search_form">
+            {% csrf_token %}
+            {{ search_form }}
+            <input class="button mini" type="submit" value="Найти">
+        </div>
+    </div>
+</div>
+
+{% endblock %}

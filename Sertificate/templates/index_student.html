@@ -9,6 +9,7 @@
             <h5>Группа {{ group.group_number }}:</h5>
             <h5>{{ group.program.program_name }}</h5> <hr>
             <p><b>Дата проведения курсов:</b><br> {{ group.begin_date }} - {{ group.end_date }}<br>
+            <b>Количество часов обучения:</b> {{ group.program.num_hours }}<br><br>
                 <b>Преподаватели:</b><br>
                 {% for t in teachers %}
                     {{ t.userprofile.fullname }},
@@ -33,7 +34,7 @@
             {% if certificate %}
             <ul>
                 {% for c in certificate %}
-                <li><h5><a href="#">{{ c.program.program_name }}</a></h5></li>
+                <li><h5><a href="/show_pdf/">{{ c.program.program_name }}</a></h5></li>
                 {% endfor %}
             </ul>
             {% else %}

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'Sertificate',
     'userprofile',
     'loginsys',
+    'Search',
 ]
 
 MIDDLEWARE = [
@@ -61,6 +62,7 @@ TEMPLATES = [
             'C:/Users/Valeria/PycharmProjects/SertificateModule/venv/Scripts/SertificateModule/templates',
             'C:/Users/Valeria/PycharmProjects/SertificateModule/venv/Scripts/SertificateModule/Sertificate/templates',
             'C:/Users/Valeria/PycharmProjects/SertificateModule/venv/Scripts/SertificateModule/loginsys/templates',
+            'C:/Users/Valeria/PycharmProjects/SertificateModule/venv/Scripts/SertificateModule/Search/templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
