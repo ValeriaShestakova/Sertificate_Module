@@ -10,27 +10,26 @@
              <b>ФИО: </b><h5>{{ student.userprofile.fullname }}</h5>
             <b>Программа: </b><h5>{{ student.userprofile.group_for_stud.program.program_name }}</h5>
             <b>Количество часов: </b><h5>{{ student.userprofile.group_for_stud.program.num_hours }}</h5><hr>
-            {% if cert.status == 'issued' %}
+            {% if res.certificate.status == 'issued' %}
                 <b>Свидетельство об окончании обучения выдано. Пользователь успешно прошел курс</b>
             {% endif %}
-            {% if cert.status == 'not_issued' %}
+            {% if res.certificate.status == 'reject' %}
                 <b>В выдаче свидетельства об окончании обучения отказано. Пользователь не прошел курс</b>
             {% endif %}
-            {% if cert.status == 'required' %}
-                <b>Свидетельство об окончании обучения запрошено. Необходимо подтвердить или отклонить заявку по окончании обучения</b><br>
-                <a href="/groups/{{ student.userprofile.group_for_stud.id }}/issue_cert/{{ cert.id}}/" class="small success radius button mini">Подтвердить</a>
-                <a href="/groups/{{ student.userprofile.group_for_stud.id }}/reject_cert/{{ cert.id }}/" class="small alert radius button mini">Отклонить</a>
+            {% if res.certificate.status == 'create' and  res.approved %}
+                <b>Свидетельство об окончании обучения подтверждено Вами, но пользователь не оформил все необходимые документы</b><br>
             {% endif %}
-            {% if cert.status == 'not_required' %}
-                <b>Свидетельство об окончании обучения не выдано. Пользователь не окончил обучение</b><br>
-                <a href="/groups/{{ student.userprofile.group_for_stud.id }}/issue_cert/{{ cert.id}}/" class="small success radius button mini">Подтвердить</a>
-                <a href="/groups/{{ student.userprofile.group_for_stud.id }}/reject_cert/{{ cert.id }}/" class="small alert radius button mini">Отклонить</a>
+            {% if res.certificate.status == 'create' and  res.approved == False %}
+                <b>Пользователь проходит обучение. Подтвердите или отклоните возможность получения свидетельства по мере
+                    выполнения всех необходимых требований</b><br>
+                <a href="/groups/{{ student.userprofile.group_for_stud.id }}/issue_cert/{{ res.id}}/" class="small success radius button mini">Подтвердить</a>
+                <a href="/groups/{{ student.userprofile.group_for_stud.id }}/reject_cert/{{ res.id }}/" class="small alert radius button mini">Отклонить</a>
             {% endif %}
             <br>
             <hr>
             <b>Выполненные задания:</b><br>
                 <div class="request-container info">
-                    {% for t in student.userprofile.task.all %}
+                    {% for t in res.task.all %}
                         {{ t.task_num }}. {{ t.task_title }} <br>
                     {% endfor %}
                 </div>

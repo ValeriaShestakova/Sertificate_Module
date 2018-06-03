@@ -16,13 +16,13 @@
                 {% endfor %}
                 <br>
                 <b>Выполненные задания:</b><br>
-                {% for t in stud.userprofile.task.all %}
+                {% for t in result.task.all %}
                     {{ t.task_num }}. {{ t.task_title }} <br>
                 {% endfor %}
             </p>
-            {% if cert.status == 'not_required' %}
-                <a href="/index/require_cert/{{ cert.id }}/" class="small radius button mini">Запросить сертификат</a>
-            {% endif %}
+            <!--{% if cert.status == 'not_required' %}-->
+                <!--<a href="/index/require_cert/{{ cert.id }}/" class="small radius button mini">Запросить сертификат</a>-->
+            <!--{% endif %}-->
             {% else %}
             <h5>{{ error_program }}</h5>
             {% endif %}

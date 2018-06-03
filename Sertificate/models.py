@@ -17,7 +17,6 @@ class Program(models.Model):
 class Task(models.Model):
     task_title = models.CharField(verbose_name='Задание', max_length=200)
     task_num = models.IntegerField(verbose_name='Номер задания', default=1)
-    # task_description = models.TextField(verbose_name='Описание задания')
     program = models.ForeignKey(Program, models.SET_NULL, null=True, default=1, verbose_name='Программа обучения')
 
     def __str__(self):
@@ -47,7 +46,9 @@ class Certificate(models.Model):
     certificate_number = models.CharField(verbose_name='Номер', max_length=200)
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     program = models.ForeignKey(Program, models.SET_NULL, default=1, null=True, verbose_name='Программа обучения')
-    status = models.CharField(verbose_name='Статус сертификата', max_length=200)  #not_issued, required, issued, not_required
+    status = models.CharField(verbose_name='Статус сертификата', max_length=200, default='create')  # not_issued, issued, create
+    pay = models.BooleanField(verbose_name='Произведена оплата', default=False)
+    docs = models.BooleanField(verbose_name='Сданы документы', default=False)
     change = models.BooleanField(verbose_name='Возможны ли изменения', default=True) #true - сертификат не выдавался, изменения возможны
 
     def __str__(self):
@@ -58,5 +59,17 @@ class Certificate(models.Model):
         verbose_name_plural = 'сертификаты'
 
 
+class Result(models.Model):
+    certificate = models.OneToOneField(Certificate, on_delete=models.CASCADE)
+    student = models.ForeignKey(User, models.SET_NULL, default=1, null=True, blank=True, verbose_name='Обучающийся')
+    task = models.ManyToManyField(Task, verbose_name='Выполненные задания', blank=True)
+    approved = models.BooleanField(verbose_name='Выполнены необходимые задания', default=False)
+
+    def __str__(self):
+        return self.student.userprofile.fullname
+
+    class Meta:
+        verbose_name = 'результат'
+        verbose_name_plural = 'результаты'
 
 

@@ -2,10 +2,9 @@ from django.shortcuts import render_to_response, redirect
 from django.http.response import Http404
 from django.contrib import auth
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Program, Task, Certificate, Group, User
+from .models import Result, Task, Certificate, Group, User
 from userprofile.models import UserProfile
 from django.template.context_processors import csrf
-from loginsys.forms import SignUpForm
 from Sertificate.forms import GroupForm
 from django.http import HttpResponse
 import random
@@ -29,8 +28,10 @@ def index(request):
                     args['group'] = group
                     args['teachers'] = group.teacher.all()
                     cert = Certificate.objects.get(student=user, program=group.program)
+                    result = Result.objects.get(student=user, certificate=cert)
                     args['cert'] = cert
-                    if cert.status == 'issued' or cert.status == 'not_issued':
+                    args['result'] = result
+                    if cert.status != 'create':
                         args['error_program'] = 'Текущих курсов не найдено!'
                         args['group'] = ''
             except ObjectDoesNotExist:
@@ -61,11 +62,36 @@ def index(request):
     return render_to_response(address, args)
 
 
-def issue_cert(request, cert_id, group_id=0):
+def pay_student(request, group_id, cert_id):
     try:
-        certificate = Certificate.objects.get(id=cert_id)
-        certificate.status = 'issued'
-        certificate.save()
+        cert = Certificate.objects.get(id=cert_id)
+        cert.pay = True
+        cert.save()
+        change_status(cert_id)
+        address = '/groups/%s/' % group_id
+    except ObjectDoesNotExist:
+        raise Http404
+    return redirect(address)
+
+
+def docs_student(request, group_id, cert_id):
+    try:
+        cert = Certificate.objects.get(id=cert_id)
+        cert.docs = True
+        cert.save()
+        change_status(cert_id)
+        address = '/groups/%s/' % group_id
+    except ObjectDoesNotExist:
+        raise Http404
+    return redirect(address)
+
+
+def issue_cert(request, res_id, group_id=0):
+    try:
+        res = Result.objects.get(id=res_id)
+        res.approved = True
+        res.save()
+        change_status(res.certificate.id)
         address = "/"
         if int(group_id) > 0:
             address = '/groups/%s/' % group_id
@@ -74,25 +100,16 @@ def issue_cert(request, cert_id, group_id=0):
     return redirect(address)
 
 
-def reject_cert(request, cert_id, group_id=0):
+def reject_cert(request, res_id, group_id=0):
     try:
-        certificate = Certificate.objects.get(id=cert_id)
-        certificate.status = 'not_issued'
-        certificate.save()
+        res = Result.objects.get(id=res_id)
+        res.certificate.change = False
+        res.certificate.status = 'reject'
+        res.certificate.save()
+        res.save()
         address = "/"
         if int(group_id) > 0:
             address = '/groups/%s/' % group_id
-    except ObjectDoesNotExist:
-        raise Http404
-    return redirect(address)
-
-
-def require_cert(request, cert_id):
-    try:
-        certificate = Certificate.objects.get(id=cert_id)
-        certificate.status = 'required'
-        certificate.save()
-        address = "/"
     except ObjectDoesNotExist:
         raise Http404
     return redirect(address)
@@ -100,29 +117,34 @@ def require_cert(request, cert_id):
 
 def groups(request, group_id):
     user = auth.get_user(request)
-    args = {'username': user.username, 'status': user.userprofile.status}
-    address = 'groups.html'
-    args['user_status'] = user.userprofile.to_rus()
-    args['fullname'] = user.userprofile.fullname
+    args = {'username': user.username, 'status': user.userprofile.status, 'user_status': user.userprofile.to_rus(),
+            'fullname': user.userprofile.fullname}
     group = Group.objects.get(id=group_id)
     args['group'] = group
     students_prof = UserProfile.objects.filter(group_for_stud=group)
     students = User.objects.filter(userprofile__in=students_prof)
-    cert = Certificate.objects.filter(student__in=students)
-    args['cert'] = cert
-    if ~cert.exists():
-        args['error_students'] = 'Студентов не найдено'
+    if user.userprofile.status == 'teacher':
+        address = 'group_for_teacher.html'
+        result = Result.objects.filter(student__in=students)
+        args['result'] = result
+        if ~result.exists():
+            args['error_students'] = 'Студентов не найдено'
+    if user.userprofile.status == 'secretary':
+        address = 'group_for_secretary.html'
+        cert = Certificate.objects.filter(student__in=students)
+        args['cert'] = cert
+        if ~cert.exists():
+            args['error_students'] = 'Студентов не найдено'
     return render_to_response(address, args)
 
 
 def delete_student(request, student_id, group_id=0):
     try:
+        address = "/"
         student = User.objects.get(id=student_id)
         group = Group.objects.get(id=group_id)
         student.userprofile.group_for_stud = None
-        student.userprofile.task.clear()
         student.save()
-        address = "/"
         cert = Certificate.objects.get(student=student, program=group.program)
         if cert.status != 'issued':
             cert.delete()
@@ -144,43 +166,21 @@ def add_student(request, group_id, student_id=0):
         gr = student.userprofile.group_for_stud
         if gr is None:
             student.userprofile.group_for_stud = group
-            student.userprofile.task.clear()
             student.save()
             cert = Certificate()
             cert.certificate_number = cert_number()
-            cert.status = 'not_required'
             cert.program = group.program
             cert.student = student
             cert.save()
+            res = Result()
+            res.student = student
+            res.certificate = cert
+            res.save()
             address = '/groups/%s/' % group_id
             args['error'] = ''
             return redirect(address)
         else:
             args['error'] = 'Ошибка! Пользователь %s уже состоит в группе %s' % (student.userprofile.fullname, gr.group_number)
-    args.update(csrf(request))
-    args['form'] = SignUpForm()
-    if int(student_id) == 1:
-        if request.POST:
-            newuser_form = SignUpForm(request.POST)
-            if newuser_form.is_valid():
-                user = newuser_form.save()
-                user.refresh_from_db()
-                user.userprofile.fullname = newuser_form.cleaned_data.get('fullname')
-                user.userprofile.status = 'student'
-                user.userprofile.group_for_stud = group
-                user.userprofile.task.clear()
-                user.save()
-                cert = Certificate()
-                cert.certificate_number = cert_number()
-                cert.status = 'not_required'
-                cert.program = group.program
-                cert.student = user
-                cert.save()
-                address = '/groups/%s/' % group_id
-                return redirect(address)
-            else:
-                args['form'] = newuser_form
-                args['registration_error'] = 'Ошибка регистрации'
     return render_to_response(address, args)
 
 
@@ -228,7 +228,6 @@ def delete_group(request, group_id):
     for st in students:
         st.group_for_stud = None
         user = User.objects.get(userprofile=st)
-        st.userprofile.task.clear()
         try:
             cert = Certificate.objects.get(student=user, program=group.program)
             if cert.status != 'issued':
@@ -245,11 +244,12 @@ def student_info(request, student_id):
     address = 'student_info.html'
     student = User.objects.get(id=student_id)
     cert = Certificate.objects.get(student=student, program=student.userprofile.group_for_stud.program)
-    t = student.userprofile.task.all()
+    res = Result.objects.get(student=student, certificate=cert)
+    t = res.task.all()
     task = Task.objects.exclude(id__in=t)
-    tasks = Task.objects.filter(id__in=task, program=student.userprofile.group_for_stud.program)
+    tasks = Task.objects.filter(id__in=task, program=cert.program)
     args['student'] = student
-    args['cert'] = cert
+    args['res'] = res
     args['tasks'] = tasks
     return render_to_response(address, args)
 
@@ -258,7 +258,9 @@ def add_task(request, student_id, task_id):
     address = '/student_info/%s/' % student_id
     student = User.objects.get(id=student_id)
     task = Task.objects.get(id=task_id)
-    student.userprofile.task.add(task)
+    cert = Certificate.objects.get(student=student, program=task.program)
+    res = Result.objects.get(student=student, certificate=cert)
+    res.task.add(task)
     student.save()
     return redirect(address)
 
@@ -286,4 +288,13 @@ def show_pdf(request):
         return response
     pdf.closed
     return response
+
+
+def change_status(cert_id):
+    cert = Certificate.objects.get(id=cert_id)
+    if cert.docs and cert.pay and cert.change and cert.result.approved:
+        cert.status = 'issued'
+        cert.change = False
+        cert.save()
+    return cert
 

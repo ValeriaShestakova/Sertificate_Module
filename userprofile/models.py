@@ -11,10 +11,12 @@ class UserProfile(models.Model):
     fullname = models.CharField(verbose_name='ФИО', max_length=300, null=True)
     status = models.CharField(verbose_name='Статус пользователя', max_length=100)  # student, teacher, secretary
     group_for_stud = models.ForeignKey(Group, models.SET_NULL, null=True, verbose_name='Группа (для студентов)', blank=True)
-    task = models.ManyToManyField(Task, verbose_name='Решенные задания', blank=True)
 
     def __unicode__(self):
         return self.user
+
+    def __str__(self):
+        return self.fullname
 
     def to_rus(self):
         if self.status == 'teacher':

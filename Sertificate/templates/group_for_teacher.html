@@ -1,0 +1,43 @@
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{%block group_for_teacher %}
+<h5>Группа {{ group.group_number }}, Программа {{ group.program.program_name }}, дата обучения: {{ group.begin_date }}-{{ group.end_date }}</h5>
+<div class="row">
+    <div class="large-12 medium columns">
+        <div class="panel">
+            <h4 class="middle-header">Обучающиеся</h4>
+            {% if result %}
+                <ol>
+                    {% for r in result %}
+                        {% if r.approved %}
+                            <li>
+                                <a href="/student_info/{{ r.student.id }}/"><img src="{% static 'information.svg' %}"  class="delete" width="28" height="26"></a>
+                                <h5 class="inline-h student issued">{{ r.student.userprofile.fullname }}</h5>
+                                <a href="/groups/{{ group.id }}/delete_student/{{ r.student.id }}/"><img src="{% static 'delete.png' %}"  class="delete" width="28" height="26"></a>
+                            </li>
+                        {% endif %}
+                        {% if r.certificate.status == 'reject' and r.approved == False %}
+                            <li>
+                                <a href="/student_info/{{ r.student.id }}/"><img src="{% static 'information.svg' %}"  class="delete" width="28" height="26"></a>
+                                <h5 class="inline-h student not_issued">{{ r.student.userprofile.fullname }}</h5>
+                                 <a href="/groups/{{ group.id }}/delete_student/{{ r.student.id }}/"><img src="{% static 'delete.png' %}" class="delete" width="28" height="26"></a>
+                            </li>
+                        {% endif %}
+                        {% if r.approved == False and r.certificate.status == 'create' %}
+                            <li>
+                                <a href="/student_info/{{ r.student.id }}/"><img src="{% static 'information.svg' %}"  class="delete" width="28" height="26"></a>
+                                <h5 class="inline-h student required">{{ r.student.userprofile.fullname }}</h5>
+                                 <a href="/groups/{{ group.id }}/delete_student/{{ r.student.id }}/"><img src="{% static 'delete.png' %}" class="delete" width="28" height="26"></a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ol>
+                {% else %}
+                <h5>{{ error_students }}</h5>
+                {% endif %}
+        </div>
+        <a href="/add_student/{{ group.id }}/0/" class="small radius button mini">Добавить студента</a>
+    </div>
+</div>
+{% endblock %}

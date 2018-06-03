@@ -2,7 +2,7 @@
 
 {% block add_student %}
 <div class="row">
-    <div class="large-6 medium columns">
+    <div class="large-12 medium columns">
         <div class="panel">
             <h4>Выбрать студента</h4><hr>
              <form action="/search_student/{{ group_id }}" method="get">
@@ -17,17 +17,6 @@
                      <br>
                     <a href="/add_student/{{ group_id }}/{{ student.id }}/" class="small success radius button mini add-btn">Добавить в группу</a>
                 {% endif %}
-        </div>
-    </div>
-    <div class="large-6 medium columns">
-        <div class="panel">
-            <h4>Добавить нового пользователя</h4> <hr>
-            {{ error_registration }}
-            <form action="/add_student/{{ group_id }}/1/" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form }}
-            <input class="small radius mini button" type="submit" value="Добавить">
-        </form>
         </div>
     </div>
 </div>
