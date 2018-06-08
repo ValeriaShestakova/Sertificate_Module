@@ -7,13 +7,25 @@ from userprofile.models import UserProfile
 from django.template.context_processors import csrf
 from Sertificate.forms import GroupForm
 from django.http import HttpResponse
+from Sertificate.blockchain import Blockchain
 import random
-# select_related prefetch_related only
+import datetime
+import pickle
+import os
+import time
+import threading
+
+
+blockchain = Blockchain()
+
+if os.path.getsize('data.txt') > 0:
+    with open('data.txt', "rb") as f:
+        blockchain.chain = pickle.load(f)
 
 
 def index(request):
     user = auth.get_user(request)
-    args = {'username': user.username, 'stud': user}
+    args = {'username': user.username, 'stud': user, 'blockchain': blockchain.full_chain()}
     address = 'main.html'
     if user.username:
         args['user_status'] = user.userprofile.to_rus()
@@ -47,12 +59,12 @@ def index(request):
             args['groups'] = groups
             if ~groups.exists():
                 args['error_groups'] = 'Групп не найдено'
-            students_prof = UserProfile.objects.filter(group_for_stud__in=groups)
-            students = User.objects.filter(userprofile__in=students_prof)
-            cert = Certificate.objects.filter(student__in=students, status='required')
-            args['cert'] = cert
-            if ~cert.exists():
-                args['error_request'] = 'Запросов не найдено'
+            # students_prof = UserProfile.objects.filter(group_for_stud__in=groups)
+            # students = User.objects.filter(userprofile__in=students_prof)
+            # cert = Certificate.objects.filter(student__in=students, status='required')
+            # args['cert'] = cert
+            # if ~cert.exists():
+            #     args['error_request'] = 'Запросов не найдено'
         if user.userprofile.status == 'secretary':
             address = 'index_secretary.html'
             groups = Group.objects.all()
@@ -125,13 +137,14 @@ def groups(request, group_id):
     students = User.objects.filter(userprofile__in=students_prof)
     if user.userprofile.status == 'teacher':
         address = 'group_for_teacher.html'
-        result = Result.objects.filter(student__in=students)
+        cert = Certificate.objects.filter(student__in=students, program=group.program)
+        result = Result.objects.filter(certificate__in=cert)
         args['result'] = result
         if ~result.exists():
             args['error_students'] = 'Студентов не найдено'
     if user.userprofile.status == 'secretary':
         address = 'group_for_secretary.html'
-        cert = Certificate.objects.filter(student__in=students)
+        cert = Certificate.objects.filter(student__in=students, program=group.program)
         args['cert'] = cert
         if ~cert.exists():
             args['error_students'] = 'Студентов не найдено'
@@ -163,24 +176,32 @@ def add_student(request, group_id, student_id=0):
     group = Group.objects.get(id=group_id)
     if int(student_id) > 1:
         student = User.objects.get(id=student_id)
+        try:
+            cert = Certificate.objects.get(student=student, program=group.program)
+            check = False
+        except ObjectDoesNotExist:
+            check = True
         gr = student.userprofile.group_for_stud
-        if gr is None:
-            student.userprofile.group_for_stud = group
-            student.save()
-            cert = Certificate()
-            cert.certificate_number = cert_number()
-            cert.program = group.program
-            cert.student = student
-            cert.save()
-            res = Result()
-            res.student = student
-            res.certificate = cert
-            res.save()
-            address = '/groups/%s/' % group_id
-            args['error'] = ''
-            return redirect(address)
+        if check:
+            if gr is None:
+                student.userprofile.group_for_stud = group
+                student.save()
+                cert = Certificate()
+                cert.certificate_number = cert_number()
+                cert.program = group.program
+                cert.student = student
+                cert.save()
+                res = Result()
+                res.student = student
+                res.certificate = cert
+                res.save()
+                address = '/groups/%s/' % group_id
+                args['error'] = ''
+                return redirect(address)
+            else:
+                args['error'] = 'Ошибка! Пользователь %s уже состоит в группе %s или прошел обучение' % (student.userprofile.fullname, gr.group_number)
         else:
-            args['error'] = 'Ошибка! Пользователь %s уже состоит в группе %s' % (student.userprofile.fullname, gr.group_number)
+            args['error'] = 'Ошибка! Пользователь %s уже прошел обучение' % (student.userprofile.fullname)
     return render_to_response(address, args)
 
 
@@ -292,9 +313,26 @@ def show_pdf(request):
 
 def change_status(cert_id):
     cert = Certificate.objects.get(id=cert_id)
+    now = datetime.datetime.now()
+    results = {'fullname': cert.student.userprofile.fullname, 'date': str(now.date()), 'course': cert.program.program_name,
+               'hours': cert.program.num_hours}
     if cert.docs and cert.pay and cert.change and cert.result.approved:
         cert.status = 'issued'
         cert.change = False
         cert.save()
-    return cert
+        add_to_blockchain(cert_id, results)
+    return blockchain
 
+
+def add_to_blockchain(cert_id, results):
+    cert = Certificate.objects.get(id=cert_id)
+    hash = blockchain.add_block(results)
+    blockchain.save_blockchain()
+    cert.hash = hash
+    cert.save()
+
+# delay = 30
+# while True:
+#     time.sleep(delay)
+#     thread = threading.Thread(target=blockchain.valid_chain())
+#     thread.start()

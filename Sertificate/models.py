@@ -50,6 +50,7 @@ class Certificate(models.Model):
     pay = models.BooleanField(verbose_name='Произведена оплата', default=False)
     docs = models.BooleanField(verbose_name='Сданы документы', default=False)
     change = models.BooleanField(verbose_name='Возможны ли изменения', default=True) #true - сертификат не выдавался, изменения возможны
+    hash = models.CharField(verbose_name='Хеш-код', max_length=500, default='')
 
     def __str__(self):
         return self.certificate_number

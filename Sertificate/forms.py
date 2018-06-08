@@ -1,6 +1,5 @@
 from django import forms
-from .models import Group, User
-from userprofile.models import UserProfile
+from .models import Group
 
 
 class GroupForm(forms.ModelForm):
