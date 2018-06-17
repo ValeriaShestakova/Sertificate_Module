@@ -32,21 +32,18 @@ class Blockchain(object):
         }
         return full_chain
 
-    def valid_chain(self, chain):
+    def valid_chain(self):
         """
         Determine if a given blockchain is valid
         :param chain: A blockchain
         :return: True if valid, False if not
         """
 
-        last_block = chain[0]
+        last_block = self.chain[0]
         current_index = 1
 
-        while current_index < len(chain):
-            block = chain[current_index]
-            print(f'{last_block}')
-            print(f'{block}')
-            print("\n-----------\n")
+        while current_index < len(self.chain):
+            block = self.chain[current_index]
             # Check that the hash of the block is correct
             last_block_hash = self.hash(last_block)
             if block['previous_hash'] != last_block_hash:
@@ -58,9 +55,9 @@ class Blockchain(object):
 
     def get_data(self, hash):
         """
-        Determine if a given blockchain is valid
-        :param chain: A blockchain
-        :return: True if valid, False if not
+        Returned a student with correct hash
+        :param hash: A hash-code
+        :return: Data of course results
         """
 
         current_index = 1
@@ -69,6 +66,24 @@ class Blockchain(object):
             block = self.chain[current_index]
             if block['previous_hash'] == hash:
                 block = self.chain[current_index-1]
+                ans = block['data']
+                break
+            current_index += 1
+        return ans
+
+    def get_data_fullname(self, fullname):
+        """
+        Returned a student with correct fullname
+        :param fullname: A fullname of student
+        :return: Data of course results
+        """
+
+        current_index = 1
+        ans = {}
+        while current_index < len(self.chain):
+            block = self.chain[current_index]
+            t = block['data']
+            if t['fullname'] == fullname:
                 ans = block['data']
                 break
             current_index += 1

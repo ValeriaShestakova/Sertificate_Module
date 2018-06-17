@@ -9,7 +9,21 @@
             <h5>Группа {{ group.group_number }}:</h5>
             <h5>{{ group.program.program_name }}</h5> <hr>
             <p><b>Дата проведения курсов:</b><br> {{ group.begin_date }} - {{ group.end_date }}<br>
-            <b>Количество часов обучения:</b> {{ group.program.num_hours }}<br><br>
+            <b>Количество часов обучения:</b> {{ group.program.num_hours }}<br>
+                <b>Статус оплаты:</b>
+                {% if cert.pay %}
+                Оплачено
+                {% else %}
+                Неоплачено
+                {% endif %}
+                <br>
+                <b>Статус документов:</b>
+                {% if cert.docs %}
+                Документы оформлены
+                {% else %}
+                Документы не оформлены
+                {% endif %}
+                <br>
                 <b>Преподаватели:</b><br>
                 {% for t in teachers %}
                     {{ t.userprofile.fullname }},
@@ -19,10 +33,12 @@
                 {% for t in result.task.all %}
                     {{ t.task_num }}. {{ t.task_title }} <br>
                 {% endfor %}
+                <b>{% if result.approved %}
+                Все необходимые задания выполнены
+                {% else %}
+                Необходимые задания не выполнены
+                    {% endif %}</b>
             </p>
-            <!--{% if cert.status == 'not_required' %}-->
-                <!--<a href="/index/require_cert/{{ cert.id }}/" class="small radius button mini">Запросить сертификат</a>-->
-            <!--{% endif %}-->
             {% else %}
             <h5>{{ error_program }}</h5>
             {% endif %}
@@ -34,7 +50,10 @@
             {% if certificate %}
             <ul>
                 {% for c in certificate %}
-                <li><h5><a href="/show_pdf/">{{ c.program.program_name }}</a></h5></li>
+                <li>
+                    <h5> <a href="#">{{ c.program.program_name }}</a></h5>
+                    Хеш-код:<p class="small-p">{{ c.hash }}</p>
+                </li>
                 {% endfor %}
             </ul>
             {% else %}

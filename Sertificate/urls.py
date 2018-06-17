@@ -15,7 +15,7 @@ urlpatterns = [
     url(r'^groups/(?P<group_id>\d+)/pay_student/(?P<cert_id>\d+)/$', views.pay_student),
     url(r'^groups/(?P<group_id>\d+)/docs_student/(?P<cert_id>\d+)/$', views.docs_student),
     url(r'^add_group/$', views.add_group),
-    url(r'^show_pdf/$', views.show_pdf),
-    url(r'^backup/$', views.backup),
+    url(r'^download/(?P<cert_id>\d+)/$', views.download),
     url(r'^$', views.index),
 ]
+

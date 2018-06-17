@@ -6,15 +6,14 @@ from .models import Result, Task, Certificate, Group, User
 from userprofile.models import UserProfile
 from django.template.context_processors import csrf
 from Sertificate.forms import GroupForm
-from django.http import HttpResponse
+from mailmerge import MailMerge
 from Sertificate.blockchain import Blockchain
 import random
 import datetime
 import pickle
 import os
-import time
 import threading
-
+from threading import Timer
 
 blockchain = Blockchain()
 
@@ -23,9 +22,26 @@ if os.path.getsize('data.txt') > 0:
         blockchain.chain = pickle.load(f)
 
 
+def backup():
+    Timer(43200, backup).start() #43200 - 12 часов
+    if blockchain.valid_chain():
+        dir = os.system(
+            r'xcopy C:\Users\Valeria\PycharmProjects\SertificateModule\venv\Scripts\SertificateModule\db.sqlite3'
+            r' C:\Users\Valeria\PycharmProjects\SertificateModule\venv\Scripts\SertificateModule\backup /H /Y')
+        blockchain.save_blockchain()
+    else:
+        message = 'Система была подвержена взлому'
+        return message
+
+
+t = threading.Thread(target=backup)
+t.start()
+t.join()
+
+
 def index(request):
     user = auth.get_user(request)
-    args = {'username': user.username, 'stud': user, 'blockchain': blockchain.full_chain()}
+    args = {'username': user.username, 'stud': user}
     address = 'main.html'
     if user.username:
         args['user_status'] = user.userprofile.to_rus()
@@ -49,8 +65,8 @@ def index(request):
             except ObjectDoesNotExist:
                 args['error_program'] = 'Текущих курсов не найдено!'
             try:
-                cert = Certificate.objects.filter(student=user, status='issued')
-                args['certificate'] = cert
+                certs = Certificate.objects.filter(student=user, status='issued')
+                args['certificate'] = certs
             except ObjectDoesNotExist:
                 args['error_certificate'] = 'Сертификатов не найдено!'
         if user.userprofile.status == 'teacher':
@@ -59,12 +75,6 @@ def index(request):
             args['groups'] = groups
             if ~groups.exists():
                 args['error_groups'] = 'Групп не найдено'
-            # students_prof = UserProfile.objects.filter(group_for_stud__in=groups)
-            # students = User.objects.filter(userprofile__in=students_prof)
-            # cert = Certificate.objects.filter(student__in=students, status='required')
-            # args['cert'] = cert
-            # if ~cert.exists():
-            #     args['error_request'] = 'Запросов не найдено'
         if user.userprofile.status == 'secretary':
             address = 'index_secretary.html'
             groups = Group.objects.all()
@@ -115,7 +125,6 @@ def issue_cert(request, res_id, group_id=0):
 def reject_cert(request, res_id, group_id=0):
     try:
         res = Result.objects.get(id=res_id)
-        res.certificate.change = False
         res.certificate.status = 'reject'
         res.certificate.save()
         res.save()
@@ -286,39 +295,35 @@ def add_task(request, student_id, task_id):
     return redirect(address)
 
 
-def backup(request):
-    user = auth.get_user(request)
-    args = {'username': user.username, 'user_status': user.userprofile.to_rus(), 'fullname': user.userprofile.fullname}
-    address = '/'
-    # memcon = apsw.Connection(":memory:")
-    # # Copy into memory
-    # connection = "C:/Users/Valeria/PycharmProjects/SertificateModule/venv/Scripts/SertificateModule/db.sqlite3"
-    # with memcon.backup("main", connection, "main") as backup:
-    #     backup.step()  # copy whole database in one go
-    #
-    # # There will be no disk accesses for this query
-    # for row in memcon.cursor().execute("select * from s"):
-    #     pass
+def download(request, cert_id):
+    template = "media/cert.docx"
+    cert = Certificate.objects.get(id=cert_id)
+    data = blockchain.get_data(cert.hash)
+    if len(data) >= 1:
+        document = MailMerge(template)
+        document.merge(
+            fullname=data['fullname'],
+            program_name=data['course'],
+            certificate_number=cert.certificate_number,
+            date=data['date'],
+            begin_date='1 мая 2018 года',
+            end_date='1 июня 2018 года',
+            num_hours=data['hours'])
+        document.write('media/output.docx')
+        address = '/media/output.docx/'
+    else:
+        error='Пользователь не найден'
+        address='/'
     return redirect(address)
-
-
-def show_pdf(request):
-    with open('static/file.pdf', 'r') as pdf:
-        response = HttpResponse(pdf.read(), content_type='application/pdf')
-        response['Content-Disposition'] = 'inline;filename=file.pdf'
-        return response
-    pdf.closed
-    return response
 
 
 def change_status(cert_id):
     cert = Certificate.objects.get(id=cert_id)
     now = datetime.datetime.now()
-    results = {'fullname': cert.student.userprofile.fullname, 'date': str(now.date()), 'course': cert.program.program_name,
-               'hours': cert.program.num_hours}
-    if cert.docs and cert.pay and cert.change and cert.result.approved:
+    results = {'fullname': cert.student.userprofile.fullname, 'date': str(now.date()),
+               'course': cert.program.program_name,'hours': cert.program.num_hours}
+    if cert.docs and cert.pay and cert.result.approved:
         cert.status = 'issued'
-        cert.change = False
         cert.save()
         add_to_blockchain(cert_id, results)
     return blockchain
@@ -326,13 +331,13 @@ def change_status(cert_id):
 
 def add_to_blockchain(cert_id, results):
     cert = Certificate.objects.get(id=cert_id)
-    hash = blockchain.add_block(results)
-    blockchain.save_blockchain()
-    cert.hash = hash
-    cert.save()
+    if blockchain.valid_chain():
+        hash = blockchain.add_block(results)
+        blockchain.save_blockchain()
+        cert.hash = hash
+        cert.save()
 
-# delay = 30
-# while True:
-#     time.sleep(delay)
-#     thread = threading.Thread(target=blockchain.valid_chain())
-#     thread.start()
+
+
+
+

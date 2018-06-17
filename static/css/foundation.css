@@ -6675,3 +6675,7 @@ li {
     padding: 0;
 
 }
+
+li .small-p {
+    font-size: 0.78rem;
+}

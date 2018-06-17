@@ -43,13 +43,12 @@ class Group(models.Model):
 
 
 class Certificate(models.Model):
-    certificate_number = models.CharField(verbose_name='Номер', max_length=200)
+    certificate_number = models.CharField(verbose_name='Регистрационный номер', max_length=200)
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     program = models.ForeignKey(Program, models.SET_NULL, default=1, null=True, verbose_name='Программа обучения')
     status = models.CharField(verbose_name='Статус сертификата', max_length=200, default='create')  # not_issued, issued, create
     pay = models.BooleanField(verbose_name='Произведена оплата', default=False)
     docs = models.BooleanField(verbose_name='Сданы документы', default=False)
-    change = models.BooleanField(verbose_name='Возможны ли изменения', default=True) #true - сертификат не выдавался, изменения возможны
     hash = models.CharField(verbose_name='Хеш-код', max_length=500, default='')
 
     def __str__(self):

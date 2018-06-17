@@ -6,10 +6,15 @@
     <div class="large-12 columns">
         <div class="panel">
             <h4 class="middle-header">Поиск</h4><hr>
-             <form action="/exec_search/" method="post" class="search_form">
-            {% csrf_token %}
+             <form action="/search/" method="get" class="search_form">
+
             {{ search_form }}
             <input class="button mini" type="submit" value="Найти">
+             </form>
+            {% if student %}
+            <h5>{{ student }}</h5>
+            {% endif %}
+            {{ error }}
         </div>
     </div>
 </div>
